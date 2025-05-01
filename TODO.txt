@@ -11,3 +11,4 @@ Add pinn residual scoring
 Add dropout and pooling, other conv stuff
 proper scaling
 Add loss term to remove trivial solutions, maybe enforce functional forms?
+check exp data residuals
