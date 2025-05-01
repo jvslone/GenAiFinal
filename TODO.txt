@@ -1,0 +1,8 @@
+-JIM
+Add Pinn Scoring
+Data Streaming?
+More readouts
+Optimize Network
+Overfitting diagnosing, ...
+Add final testing, validation
+BFGS? L-BFGS?
