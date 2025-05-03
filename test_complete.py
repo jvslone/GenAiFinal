@@ -26,8 +26,8 @@ print(device)
 
 def load_data():
     use_rho_time = 0
-    # Input_File = 'ChangeDataset622v1.pickle'
-    Input_File = 'Data/3k.pickle'
+    Input_File = 'ChangeDataset622v2.pickle'
+    # Input_File = 'Data/3k.pickle'
     
     def ReadPickle(filename: str) -> dict:
         '''Reads in data from given pickle files, outputs a dictionary'''
