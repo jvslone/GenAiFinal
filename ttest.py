@@ -5,11 +5,8 @@ from scipy import stats
 real_sample = np.load("real_sample.npy")
 gen_sample = np.load("generated_sample.npy")
 
-# Reshape them if necessary to compare the samples (e.g., along each channel)
-# Assuming the data is 4D: (batch_size, channels, height, width)
-# Flatten the samples into 1D arrays for comparison
-real_flat = real_sample.flatten()
-gen_flat = gen_sample.flatten()
+real_flat = real_sample.reshape(real_sample.shape[0], -1)
+gen_flat = gen_sample.reshape(gen_sample.shape[0], -1)
 
 # Perform an independent two-sample t-test
 t_stat, p_value = stats.ttest_ind(real_flat, gen_flat)
@@ -24,14 +21,13 @@ if p_value < 0.05:
 else:
     print("There is no significant difference between the real and generated samples.")
 
-# Assuming `real_sample` and `gen_sample` have the shape (batch_size, channels, height, width)
+# If the data is 3D with channels, we loop over channels for t-tests per channel:
 num_channels = real_sample.shape[1]
 
-# Loop through each channel and perform t-test
 for channel in range(num_channels):
-    real_channel = real_sample[:, channel, :, :].flatten()
-    gen_channel = gen_sample[:, channel, :, :].flatten()
-    
+    real_channel = real_sample[:, channel, :].flatten()  # Flattening the features for each channel
+    gen_channel = gen_sample[:, channel, :].flatten()
+
     t_stat, p_value = stats.ttest_ind(real_channel, gen_channel)
     
     print(f"Channel {channel + 1} - T-statistic: {t_stat}, P-value: {p_value}")
