@@ -402,7 +402,7 @@ def vae_gan_objective(latent_dim, learning_rate_vae, learning_rate_disc,
         latent_dim=latent_dim,
         lr_disc=learning_rate_disc,
         lr_vae=learning_rate_vae,
-        num_epochs=5,  # Reduced epochs for optimization
+        num_epochs=20,  # Reduced epochs for optimization
         device=device,
         lambda_kl=lambda_kl,
         lambda_adv=lambda_adv,
