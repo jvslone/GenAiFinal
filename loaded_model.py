@@ -11,7 +11,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # CONFIG
 use_rho_time = 0
-Input_File = 'Data/ChangeDataset622v2.pickle'
+Input_File = 'ChangeDataset622v2.pickle'
 latent_dim = 150  # Must match trained model
 
 # LOAD DATA
