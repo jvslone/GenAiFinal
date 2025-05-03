@@ -389,7 +389,7 @@ def vae_gan_objective(latent_dim, learning_rate_vae, learning_rate_disc,
         dataloader=train_loader,
         latent_dim=latent_dim,
         lr_vae=learning_rate_vae,
-        num_epochs=5,  # Reduced epochs for optimization
+        num_epochs=3,  # Reduced epochs for optimization
         device=device,
         beta=beta_vae
     )
@@ -481,7 +481,7 @@ def main():
     # Run optimization
     optimizer.maximize(
         init_points = 2,    # Number of random initial points
-        n_iter = 3         # Number of optimization iterations
+        n_iter = 2         # Number of optimization iterations
     )
     
     logger.info("Bayesian Optimization completed")
@@ -601,7 +601,7 @@ def main():
         for param, value in best_params.items():
             f.write(f"{param}: {value}\n")
     
-    return final_vae, final_disc, best_params
+    return final_vae, final_disc, best_params, real_confs, fake_confs
 
 
 
@@ -793,7 +793,7 @@ def plot_vaegan_comparison(vae, device, Database_channel_standardized, best_para
     plt.show()
 
 if __name__ == "__main__":    
-    final_vae, final_disc, best_params = main()
+    final_vae, final_disc, best_params, real_confs, fake_confs = main()
 
     plot_vaegan_comparison(
         vae = final_vae,
