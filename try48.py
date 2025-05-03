@@ -86,7 +86,7 @@ vae.load_state_dict(torch.load(model_path, map_location=device))
 vae.eval()
 
 # ---------------- MMD Function ----------------
-def MMD(x, y, kernel="multiscale"):
+def MMD(x, y, kernel="rbf"):
     x = (x - x.mean(dim=1, keepdim=True)) / (x.std(dim=1, keepdim=True) + 1e-8)
     y = (y - y.mean(dim=1, keepdim=True)) / (y.std(dim=1, keepdim=True) + 1e-8)
 
@@ -139,7 +139,7 @@ def plot_distribution():
         try:
             real_tensor = torch.tensor(real_flat[:5000].reshape(-1, 100), dtype=torch.float32)
             gen_tensor = torch.tensor(gen_flat[:5000].reshape(-1, 100), dtype=torch.float32)
-            mmd_val = MMD(real_tensor, gen_tensor).item()
+            mmd_val = MMD(real_tensor, gen_tensor, kernel="rbf").item()
         except Exception as e:
             mmd_val = float('nan')
             print(f"MMD failed on channel {channel_names[c]}: {e}")
