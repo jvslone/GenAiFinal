@@ -5,6 +5,12 @@ from scipy import stats
 real_sample = np.load("real_sample.npy")
 gen_sample = np.load("generated_sample.npy")
 
+# Print the shape of the samples to understand their structure
+print(f"Shape of real sample: {real_sample.shape}")
+print(f"Shape of generated sample: {gen_sample.shape}")
+
+# If the data is 3D, the shape will be (batch_size, channels, features)
+# We flatten the data along the last dimension (features) for comparison
 real_flat = real_sample.reshape(real_sample.shape[0], -1)
 gen_flat = gen_sample.reshape(gen_sample.shape[0], -1)
 
@@ -16,7 +22,7 @@ print(f"T-statistic: {t_stat}")
 print(f"P-value: {p_value}")
 
 # Interpret the result
-if p_value < 0.05:
+if np.any(p_value < 0.05):
     print("There is a significant difference between the real and generated samples.")
 else:
     print("There is no significant difference between the real and generated samples.")
@@ -32,7 +38,8 @@ for channel in range(num_channels):
     
     print(f"Channel {channel + 1} - T-statistic: {t_stat}, P-value: {p_value}")
     
-    if p_value < 0.05:
+    if np.any(p_value < 0.05):
         print(f"Channel {channel + 1} has a significant difference.")
     else:
         print(f"Channel {channel + 1} has no significant difference.")
+
