@@ -36,9 +36,9 @@ Database_standardized = (Database - means) / stds
 
 # ---------------- VAE Architecture ----------------
 class VariationalAutoencoder(nn.Module):
-    def __init__(self, latent_dim):
+    def __init__(self, latent_dim=150):
         super().__init__()
-        self.encoder = nn.Sequential(
+        self.encoder_conv = nn.Sequential(
             nn.Conv2d(num_channels, num_channels*2, 3, 2, 1),
             nn.SELU(),
             nn.Conv2d(num_channels*2, num_channels*4, 3, 2, 1),
@@ -51,8 +51,8 @@ class VariationalAutoencoder(nn.Module):
         self.fc1 = nn.Linear(num_channels*16*63*4, 128)
         self.fc_mu = nn.Linear(128, latent_dim)
         self.fc_logvar = nn.Linear(128, latent_dim)
-        self.fc_decode = nn.Linear(latent_dim, num_channels*16*63*4)
-        self.decoder = nn.Sequential(
+        self.decoder_fc = nn.Linear(latent_dim, num_channels*16*63*4)
+        self.decoder_conv = nn.Sequential(
             nn.ConvTranspose2d(num_channels*16, num_channels*8, 3, 2, 1, 0),
             nn.SELU(),
             nn.ConvTranspose2d(num_channels*8, num_channels*4, 3, 2, 1, (1, 0)),
@@ -63,21 +63,22 @@ class VariationalAutoencoder(nn.Module):
         )
 
     def encode(self, x):
-        h = self.encoder(x).view(x.size(0), -1)
-        h = F.relu(self.fc1(h))
+        x = self.encoder_conv(x).view(x.size(0), -1)
+        h = F.relu(self.fc1(x))
         return self.fc_mu(h), self.fc_logvar(h)
 
     def reparameterize(self, mu, logvar):
         return mu + torch.randn_like(mu) * torch.exp(0.5 * logvar)
 
     def decode(self, z):
-        h = self.fc_decode(z).view(-1, num_channels*16, 63, 4)
-        return self.decoder(h)
+        x = self.decoder_fc(z).view(-1, num_channels*16, 63, 4)
+        return self.decoder_conv(x)
 
     def forward(self, x):
         mu, logvar = self.encode(x)
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
+
 
 # ---------------- Load VAE ----------------
 vae = VariationalAutoencoder(latent_dim).to(device)
