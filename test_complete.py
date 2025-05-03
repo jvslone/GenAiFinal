@@ -254,12 +254,16 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
     logger.info("Starting VAE-GAN training...")
     d_losses = []
     g_losses = []
+    real_confidences = []
+    fake_confidences = []
     
     for epoch in range(1, num_epochs + 1):
         vae.train()
         disc.train()
         total_G_loss = 0.0
         total_D_loss = 0.0
+        epoch_real_conf = []
+        epoch_fake_conf = []
         
         for x_real, _ in dataloader:
             x_real = x_real.to(device)
@@ -284,6 +288,9 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
             # Discriminator forward
             d_out_real = disc(x_real_noisy)
             d_out_fake = disc(x_sample_noisy)
+            
+            epoch_real_conf.extend(d_out_real.detach().cpu().numpy().flatten())
+            epoch_fake_conf.extend(d_out_fake.detach().cpu().numpy().flatten())
             
             loss_D_real = bce(d_out_real, real_label(bs, device, label_smoothing))
             loss_D_fake = bce(d_out_fake, fake_label(bs, device, label_smoothing))
@@ -322,10 +329,15 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
         d_losses.append(avg_D)
         g_losses.append(avg_G)
         
-        logger.info(f"Epoch [{epoch}/{num_epochs}]  Loss_D: {avg_D:.4f}  Loss_G: {avg_G:.4f}")
+        real_confidences.append(np.mean(epoch_real_conf))
+        fake_confidences.append(np.mean(epoch_fake_conf))
+        
+        logger.info(f"Epoch [{epoch}/{num_epochs}]  Loss_D: {avg_D:.4f}  Loss_G: {avg_G:.4f}"
+                    f"Disc_Real_Conf: {real_confidences[-1]:.4f}  Disc_Fake_Conf: {fake_confidences[-1]:.4f}")
     
     logger.info("VAE-GAN training complete!")
-    return vae, disc, d_losses, g_losses
+        
+    return vae, disc, d_losses, g_losses, real_confidences, fake_confidences
 
 
 # ============================================== Function to validate the model on validation data ====================================================================
@@ -543,7 +555,34 @@ def main():
     
     plt.tight_layout()
     plt.savefig('vae_gan_training_curves.png')
-    
+
+
+                          
+    # Plot discriminator confidence on real and fake samples
+    real_confidences, fake_confidences = [], []
+    final_vae.eval()
+    final_disc.eval()
+    with torch.no_grad():
+        for x_real, _ in val_loader:
+            x_real = x_real.to(device)
+            bs = x_real.size(0)
+            z = torch.randn(bs, best_params['latent_dim'], device=device)
+            x_fake = final_vae.decode(z)
+            real_confidences.append(final_disc(x_real).mean().item())
+            fake_confidences.append(final_disc(x_fake).mean().item())
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(real_confidences, label='Discriminator on Real', marker='o')
+    plt.plot(fake_confidences, label='Discriminator on Fake', marker='x')
+    plt.title('Discriminator Confidence on Real vs. Fake Samples')
+    plt.xlabel('Batch')
+    plt.ylabel('Average Confidence')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig('discriminator_confidence_curve.png')
+
+                          
     # Save hyperparameters
     with open('best_hyperparameters.txt', 'w') as f:
         for param, value in best_params.items():
