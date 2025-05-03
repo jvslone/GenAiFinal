@@ -608,6 +608,53 @@ def main():
 
 
 
+# ============================================== MMD Function ====================================================================
+def MMD(x, y, kernel="multiscale"):
+    """
+    Computes the Maximum Mean Discrepancy (MMD) between two batches of samples.
+    Args:
+        x, y: tensors of shape [batch_size, features]
+        kernel: type of kernel to use ("multiscale" or "rbf")
+    Returns:
+        Scalar MMD value
+    """
+    # Normalize features
+    x = (x - x.mean(dim=1, keepdim=True)) / (x.std(dim=1, keepdim=True) + 1e-8)
+    y = (y - y.mean(dim=1, keepdim=True)) / (y.std(dim=1, keepdim=True) + 1e-8)
+
+    def compute_distances(a, b):
+        norm_a = (a ** 2).sum(dim=1).view(-1, 1)
+        norm_b = (b ** 2).sum(dim=1).view(-1, 1)
+        return norm_a + norm_b.t() - 2.0 * torch.mm(a, b.t())
+
+    dxx = compute_distances(x, x)
+    dyy = compute_distances(y, y)
+    dxy = compute_distances(x, y)
+
+    XX, YY, XY = torch.zeros_like(dxx), torch.zeros_like(dyy), torch.zeros_like(dxy)
+
+    if kernel == "multiscale":
+        bandwidths = [0.2, 0.5, 0.9, 1.3]
+        for a in bandwidths:
+            a2 = a ** 2
+            XX += a2 * (a2 + dxx).reciprocal()
+            YY += a2 * (a2 + dyy).reciprocal()
+            XY += a2 * (a2 + dxy).reciprocal()
+    elif kernel == "rbf":
+        bandwidths = [10, 15, 20, 50]
+        for a in bandwidths:
+            XX += torch.exp(-0.5 * dxx / a)
+            YY += torch.exp(-0.5 * dyy / a)
+            XY += torch.exp(-0.5 * dxy / a)
+
+    return torch.mean(XX + YY - 2 * XY)
+
+
+
+
+
+
+
 # ============================================== Plot VAE-GAN Comparison ====================================================================
 # ==================================================== CMAP ======================================================================================
 def plot_vaegan_comparison(vae, device, Database_channel_standardized, best_params, num_samples=3, save=False):
@@ -770,10 +817,29 @@ def plot_vaegan_comparison(vae, device, Database_channel_standardized, best_para
         real_std = np.std(real_data)
         gen_mean = np.mean(gen_data)
         gen_std = np.std(gen_data)
+
+        # Compute MMD (using small reshaped tensors to avoid memory issues)
+        try:
+            real_tensor = torch.tensor(real_data[:5000].reshape(-1, 100), dtype=torch.float32)
+            gen_tensor = torch.tensor(gen_data[:5000].reshape(-1, 100), dtype=torch.float32)
+            mmd_val = MMD(real_tensor, gen_tensor).item()
+        except Exception as e:
+            mmd_val = float('nan')
+            print(f"Warning: MMD failed on channel {channel_names[c]}: {e}")
+
         
-        stats_text = f'Real: μ={real_mean:.2f}, σ={real_std:.2f}\nGen: μ={gen_mean:.2f}, σ={gen_std:.2f}'
-        ax.text(0.02, 0.95, stats_text, transform=ax.transAxes, 
+        # Compose and display stats
+        stats_text = (f'Real: μ={real_mean:.2f}, σ={real_std:.2f}\n'
+                      f'Gen: μ={gen_mean:.2f}, σ={gen_std:.2f}\n'
+                      f'MMD: {mmd_val:.4f}')
+        ax.text(0.02, 0.95, stats_text, transform=ax.transAxes,
                 verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+        
+        # stats_text = f'Real: μ={real_mean:.2f}, σ={real_std:.2f}\nGen: μ={gen_mean:.2f}, σ={gen_std:.2f}'
+        # ax.text(0.02, 0.95, stats_text, transform=ax.transAxes, 
+        #         verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+
+
     
     plt.tight_layout(rect=[0, 0, 1, 0.96])  # Suptitle
     
