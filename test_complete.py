@@ -476,7 +476,7 @@ def main():
     # Run optimization
     optimizer.maximize(
         init_points = 5,    # Number of random initial points
-        n_iter = 15         # Number of optimization iterations
+        n_iter = 5         # Number of optimization iterations
     )
     
     logger.info("Bayesian Optimization completed")
