@@ -333,7 +333,7 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
         fake_confidences.append(np.mean(epoch_fake_conf))
         
         logger.info(f"Epoch [{epoch}/{num_epochs}]  Loss_D: {avg_D:.4f}  Loss_G: {avg_G:.4f}"
-                    f"Disc_Real_Conf: {real_confidences[-1]:.4f}  Disc_Fake_Conf: {fake_confidences[-1]:.4f}")
+                    f" Disc_Real_Conf: {real_confidences[-1]:.4f}  Disc_Fake_Conf: {fake_confidences[-1]:.4f}")
     
     logger.info("VAE-GAN training complete!")
         
@@ -390,7 +390,7 @@ def vae_gan_objective(latent_dim, learning_rate_vae, learning_rate_disc,
     )
     
     # Then train VAE-GAN
-    vae, disc, _, _ = train_vae_gan(
+    vae, disc, _, _, _ = train_vae_gan(
         vae=vae,
         disc=disc,
         dataloader=train_loader,
