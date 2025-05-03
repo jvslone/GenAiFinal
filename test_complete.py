@@ -541,38 +541,61 @@ def main():
     logger.info(f"Final validation reconstruction error: {final_recon_error:.4f}")
     
 
-    # Plot losses
-    plt.figure(figsize=(12, 5))
+    # # Plot losses
+    # plt.figure(figsize=(12, 5))
     
-    plt.subplot(1, 2, 1)
-    plt.plot(vae_losses)
-    plt.title('VAE Pretraining Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
+    # plt.subplot(1, 2, 1)
+    # plt.plot(vae_losses)
+    # plt.title('VAE Pretraining Loss')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
     
-    plt.subplot(1, 2, 2)
+    # plt.subplot(1, 2, 2)
+    # plt.plot(d_losses, label='Discriminator Loss')
+    # plt.plot(g_losses, label='Generator Loss')
+    # plt.title('VAE-GAN Training Loss')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Loss')
+    # plt.legend()
+    
+    # # Discriminator confidence
+    # real_confs = [x[0] for x in disc_conf_history]
+    # fake_confs = [x[1] for x in disc_conf_history]
+    # plt.subplot(1, 2, 2)
+    # plt.plot(real_confs, label='Real Confidence')
+    # plt.plot(fake_confs, label='Fake Confidence')
+    # plt.title('Discriminator Confidence Over Epochs')
+    # plt.xlabel('Epoch')
+    # plt.ylabel('Confidence')
+    # plt.legend()
+
+    # plt.tight_layout()
+    # plt.savefig("vae_gan_training_curves.png")
+
+
+    # Plot losses in the first figure
+    plt.figure(figsize=(10, 4))
     plt.plot(d_losses, label='Discriminator Loss')
     plt.plot(g_losses, label='Generator Loss')
     plt.title('VAE-GAN Training Loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
     plt.legend()
+    plt.tight_layout()
+    plt.savefig("Image/VAEGAN_Losses.png", dpi=300, bbox_inches='tight')
     
-    # Discriminator confidence
-    real_confs = [x[0] for x in disc_conf_history]
-    fake_confs = [x[1] for x in disc_conf_history]
-    plt.subplot(1, 2, 2)
+    # Plot discriminator confidence in a separate figure
+    plt.figure(figsize=(10, 4))
     plt.plot(real_confs, label='Real Confidence')
     plt.plot(fake_confs, label='Fake Confidence')
     plt.title('Discriminator Confidence Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Confidence')
     plt.legend()
-
     plt.tight_layout()
-    plt.savefig("vae_gan_training_curves.png")
+    plt.savefig("Image/Discriminator_Confidence.png", dpi=300, bbox_inches='tight')
 
-                          
+
     # Save hyperparameters
     with open('best_hyperparameters.txt', 'w') as f:
         for param, value in best_params.items():
