@@ -111,11 +111,11 @@ dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 # GENERATE & SAVE SAMPLE
 z = torch.randn(1, latent_dim, device=device)
-generated = vae.decode(z).squeeze(0).cpu().numpy()
+generated = vae.decode(z).squeeze(0).cpu().detach().numpy()
 np.save("generated_sample.npy", generated)
 
 # SAVE REAL SAMPLE
 real_sample = next(iter(dataloader))[0][0]
-np.save("real_sample.npy", real_sample.numpy())
+np.save("real_sample.npy", real_sample.detach().numpy())
 
 print("Sample generation and saving completed.")
