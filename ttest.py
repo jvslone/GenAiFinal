@@ -28,7 +28,7 @@ else:
     print("There is no significant difference between the real and generated samples.")
 
 # If the data is 3D with channels, we loop over channels for t-tests per channel:
-num_channels = real_sample.shape[1]
+num_channels = real_sample.shape[0]
 
 for channel in range(num_channels):
     real_channel = real_sample[:, channel, :].flatten()  # Flattening the features for each channel
