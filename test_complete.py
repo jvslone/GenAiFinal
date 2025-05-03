@@ -261,9 +261,9 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
         disc.train()
         total_G_loss = 0.0
         total_D_loss = 0.0
-        total_real_conf = 0.0
-        total_fake_conf = 0.0
-        # num_batches = 0
+        epoch_real_conf = []
+        epoch_fake_conf = []
+        
         
         for x_real, _ in dataloader:
             x_real = x_real.to(device)
@@ -328,8 +328,8 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
         
         avg_D = total_D_loss / len(dataloader)
         avg_G = total_G_loss / len(dataloader)
-        avg_real_conf = total_real_conf / len(dataloader)
-        avg_fake_conf = total_fake_conf / len(dataloader)
+        avg_real_conf = np.mean(epoch_real_conf)
+        avg_fake_conf = np.mean(epoch_fake_conf)
         
         d_losses.append(avg_D)
         g_losses.append(avg_G)
