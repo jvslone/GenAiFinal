@@ -393,7 +393,7 @@ def vae_gan_objective(latent_dim, learning_rate_vae, learning_rate_disc,
     )
     
     # Then train VAE-GAN
-    vae, disc, _, _, _ = train_vae_gan(
+    vae, disc, _, _ = train_vae_gan(
         vae=vae,
         disc=disc,
         dataloader=train_loader,
