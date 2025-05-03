@@ -11,7 +11,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # CONFIG
 use_rho_time = 0
-Input_File = 'ChangeDataset622v2.pickle'
+Input_File = 'Data/ChangeDataset622v2.pickle'
 latent_dim = 150  # Must match trained model
 
 # LOAD DATA
@@ -43,6 +43,12 @@ num_channels = Database.shape[1]
 means = Database.mean(axis=(0, 2, 3), keepdims=True)
 stds = Database.std(axis=(0, 2, 3), keepdims=True)
 Database_channel_standardized = (Database - means) / stds
+
+# SAVE EACH CHANNEL SEPARATELY
+np.save("Diffusion_channel.npy", D_data)
+np.save("Convection_channel.npy", V_data)
+np.save("Density_channel.npy", N_data)
+np.save("Source_channel.npy", S_data)
 
 # CUSTOM DATASET
 class CustomDataset(Dataset):
@@ -111,11 +117,11 @@ dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
 # GENERATE & SAVE SAMPLE
 z = torch.randn(1, latent_dim, device=device)
-generated = vae.decode(z).squeeze(0).cpu().detach().numpy()
+generated = vae.decode(z).squeeze(0).cpu().numpy()
 np.save("generated_sample.npy", generated)
 
 # SAVE REAL SAMPLE
 real_sample = next(iter(dataloader))[0][0]
-np.save("real_sample.npy", real_sample.detach().numpy())
+np.save("real_sample.npy", real_sample.numpy())
 
 print("Sample generation and saving completed.")
