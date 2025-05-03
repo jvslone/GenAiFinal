@@ -389,7 +389,7 @@ def vae_gan_objective(latent_dim, learning_rate_vae, learning_rate_disc,
         dataloader=train_loader,
         latent_dim=latent_dim,
         lr_vae=learning_rate_vae,
-        num_epochs=3,  # Reduced epochs for optimization
+        num_epochs=20,  # Reduced epochs for optimization
         device=device,
         beta=beta_vae
     )
@@ -480,8 +480,8 @@ def main():
     
     # Run optimization
     optimizer.maximize(
-        init_points = 2,    # Number of random initial points
-        n_iter = 2         # Number of optimization iterations
+        init_points = 5,    # Number of random initial points
+        n_iter = 15         # Number of optimization iterations
     )
     
     logger.info("Bayesian Optimization completed")
@@ -507,7 +507,7 @@ def main():
         dataloader=train_loader,
         latent_dim=best_params['latent_dim'],
         lr_vae=best_params['learning_rate_vae'],
-        num_epochs=5,  # Full training run
+        num_epochs=20,  # Full training run
         device=device,
         beta=best_params['beta_vae']
     )
@@ -523,7 +523,7 @@ def main():
         latent_dim=best_params['latent_dim'],
         lr_disc=best_params['learning_rate_disc'],
         lr_vae=best_params['learning_rate_vae'],
-        num_epochs=2,  # Full training run
+        num_epochs=50,  # Full training run
         device=device,
         lambda_kl=best_params['lambda_kl'],
         lambda_adv=best_params['lambda_adv'],
