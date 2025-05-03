@@ -39,12 +39,30 @@ data_dir = ""  # Set your directory here if needed
 real_path = os.path.join(data_dir, "real_sample.npy")
 gen_path = os.path.join(data_dir, "generated_sample.npy")
 
-real_sample = np.load(real_path).reshape(1, -1)
-gen_sample = np.load(gen_path).reshape(1, -1)
+real_sample = np.load(real_path)
+gen_sample = np.load(gen_path)
 
-x = torch.tensor(real_sample, dtype=torch.float32).to(device)
-y = torch.tensor(gen_sample, dtype=torch.float32).to(device)
+# Check shape (Assuming data is in shape (channels, height, width))
+assert real_sample.shape == gen_sample.shape, "Shape of real and generated samples must match"
 
-# === Compute MMD ===
-mmd_result = MMD(x, y, kernel="multiscale")
-print(f"MMD result: {mmd_result.item():.6f}")
+# === Compute MMD per channel ===
+num_channels = real_sample.shape[0]
+
+mmd_results = []
+
+for i in range(num_channels):
+    real_channel = real_sample[i].reshape(1, -1)  # Flatten each channel
+    gen_channel = gen_sample[i].reshape(1, -1)
+
+    x = torch.tensor(real_channel, dtype=torch.float32).to(device)
+    y = torch.tensor(gen_channel, dtype=torch.float32).to(device)
+
+    mmd_result = MMD(x, y, kernel="multiscale")
+    mmd_results.append(mmd_result.item())
+
+    print(f"MMD result for channel {i+1}: {mmd_result.item():.6f}")
+
+# If needed, print all results
+print("\nMMD results per channel:")
+for i, res in enumerate(mmd_results, 1):
+    print(f"Channel {i}: {res:.6f}")
