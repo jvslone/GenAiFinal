@@ -585,6 +585,8 @@ def main():
     plt.savefig("Image/VAEGAN_Losses.png", dpi=300, bbox_inches='tight')
     
     # Plot discriminator confidence in a separate figure
+    real_confs = [x[0] for x in disc_conf_history]
+    fake_confs = [x[1] for x in disc_conf_history]
     plt.figure(figsize=(10, 4))
     plt.plot(real_confs, label='Real Confidence')
     plt.plot(fake_confs, label='Fake Confidence')
