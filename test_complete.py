@@ -264,6 +264,8 @@ def train_vae_gan(vae, disc, dataloader, latent_dim, lr_disc, lr_vae, num_epochs
         epoch_real_conf = []
         epoch_fake_conf = []
         
+        total_real_conf = 0.0
+        total_fake_conf = 0.0
         
         for x_real, _ in dataloader:
             x_real = x_real.to(device)
